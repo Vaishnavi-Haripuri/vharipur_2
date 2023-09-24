@@ -1,0 +1,137 @@
+---
+title: "vharipur_qmm2"
+author: "Vaishnavi"
+date: "2023-09-24"
+output: html_document
+---
+---
+title: "QMM assignment 2"
+author: "Vaishnavi"
+date: "2023-09-24"
+output: html_document
+---
+
+#DECISION VARIABLES
+
+Let A1, B1, and C1 be large, medium, and small sizes of product in Plant-1
+Let A2, B2, and C2 be large, medium, and small sizes of product in Plant-2
+Let A3, B3, and C3 be large, medium, and small sizes of product in Plant-3
+
+#LINEAR PROGRAMMING MODEL
+
+#Decision variables
+
+Ax, Bx, Cx
+
+#Objective Function
+
+Max Z=420A1+420A2+420A3+360B1+360B2+360B3+300C1+300C2+300C3
+
+Constraints
+
+1.	Based on excess capacity in plants 1,2, and 3
+             A1+B1+C1 <= 750 
+             A2+B2+C2 <= 900 
+             A3+B3+C3 <= 450
+
+2.	Based on Storage Capacity in Plants1,2, and 3 respectively
+              20A1+15B1+12C1 <= 13000 
+              20A2+15B2+12C2 <= 12000 
+              20A3+15B3+12C3 <= 5000
+
+3.	Based on Sales forecast/ Demand for Large, Medium, and Small sized products
+              A1+A2+A3 <= 900 
+              B1+B2+B3 <= 1200 
+              C1+C2+C3 <= 750
+
+#Also-> Ax, Bx, Cx >= 0, non-negative quantity
+
+#Given that each plant should use equal percentage of its excess capacity production.
+
+900(A1+B1+C1) = 750(A2+B2+C3) 450(A1+B2+C2) = 900(A3+B3+C3)
+
+#Subject to- A1,A2,A3,B1,B2,B3,C1,C2,C3 >=0 ……Non-negativity quantities
+
+The above LP problem constaraints can be written as
+
+A1 + B1 + C1 + 0A2 + 0B2 + 0C2 + 0A3 + 0B3 + 0C3 ≤ 750
+0A1 + 0B1 + 0C1 + A2 + B2 + C2 + 0A3 + 0B3 + 0C3 ≤ 900
+0A1 + 0B1 + 0C1 + 0A2 + 0B2 + 0C2 + A3 + B3 + C3 ≤ 450
+20A1 + 15B1 + 12C1 + 0A2 + 0B2 + 0C2 + 0A3 + 0B3 + 0C3 ≤ 13000
+0A1 + 0B1 + 0C1 + 20A2 + 15B2 + 12C2 + 0A3 + 0B3 + 0C3 ≤ 12000
+0A1 + 0B1 + 0C1 + 0A2 + 0B2 + 0C2 + 20A3 + 15B3 + 12C3 ≤ 5000
+A1 + 0B1 + 0C1 + A2 + 0B2 + 0C2 + A3 + 0B3 + 0C3 ≤ 900
+0A1 + B1 + 0C1 + 0A2 + B2 + 0C2 + 0A3 + B3 + 0C3 ≤ 1200
+0A1 + 0B1 + C1 + 0A2 + 0B2 + C2 + 0A3 + 0B3 + C3 ≤ 750
+
+
+```{r}
+library(lpSolve)
+
+Objective <- c(420,420,420,360,360,360,300,300,300)
+Objective
+```
+
+```{r} 
+constraints <- matrix(c(1,1,1,0,0,0,0,0,0,
+0,0,0,1,1,1,0,0,0,
+0,0,0,0,0,0,1,1,1,
+20,15,12,0,0,0,0,0,0,
+0,0,0,20,15,12,0,0,0,
+0,0,0,0,0,0,20,15,12,
+1,0,0,1,0,0,1,0,0,
+0,1,0,0,1,0,0,1,0,
+0,0,1,0,0,1,0,0,1,
+900,900,900,-750,-750,-750,0,0,0,
+0,0,0,450,450,450,-900,-900,-900,
+450,450,450,0,0,0,-750,-750,-750),nrow = 12,byrow = TRUE)
+constraints
+```
+
+```{r}
+#we can set the direction of the inequalities using subject to equation for this by using directions function
+directions <- c("<=",
+"<=",
+"<=",
+"<=",
+"<=",
+"<=",
+"<=",
+"<=",
+"<=",
+"=",
+"=",
+"=")
+directions
+
+```
+
+
+```{r}
+#setting RHS 
+RHS <- c(750,
+900,
+450,
+13000,
+12000,
+5000,
+900,
+1200,
+750,
+0,
+0,
+0)
+RHS
+```
+
+```{r}
+#to get objective function value
+maximum <- lp("max",Objective,constraints,directions,RHS)
+maximum
+```
+
+```{r}
+#to get values of each variable
+lp("max", Objective,constraints,directions,RHS)$solution
+```
+
